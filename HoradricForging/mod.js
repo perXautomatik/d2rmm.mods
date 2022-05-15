@@ -7,6 +7,8 @@ const RARITY_LABEL = {
   hiq: 'high quality',
   mag: 'magic',
   rar: 'rare',
+  uni: 'unique',
+  set: 'set',
   crf: 'crafted',
   tmp: 'tempered',
 };
@@ -16,15 +18,20 @@ const TYPE_LABEL = {
   weap: 'weapon',
   ring: 'ring',
   amul: 'amulet',
+  scha: 'small charm',
+  mcha: 'large charm',
+  lcha: 'grand charm',
+  jewl: 'jewel',
 };
 
-// rings and amulets cannot be white
 const VALID_TYPES = {
   low: ['armo', 'weap'],
   nor: ['armo', 'weap'],
   hiq: ['armo', 'weap'],
-  mag: ['armo', 'weap', 'ring', 'amul'],
-  rar: ['armo', 'weap', 'ring', 'amul'],
+  mag: ['armo', 'weap', 'ring', 'amul', 'scha', 'mcha', 'lcha', 'jewl'],
+  rar: ['armo', 'weap', 'ring', 'amul', 'scha', 'mcha', 'lcha', 'jewl'],
+  uni: ['armo', 'weap', 'ring', 'amul', 'scha', 'mcha', 'lcha', 'jewl'],
+  set: ['armo', 'weap', 'ring', 'amul'],
   crf: ['armo', 'weap', 'ring', 'amul'],
   tmp: ['armo', 'weap', 'ring', 'amul'],
 };
@@ -67,27 +74,29 @@ if (config.reforge) {
 if (config.reroll) {
   const rune = config.rerollIngredient;
 
-  ['low', 'nor', 'hiq', 'mag', 'rar', 'crf', 'tmp'].forEach((rarity) => {
-    const rarityLabel = RARITY_LABEL[from];
-    VALID_TYPES[rarity].forEach((type) => {
-      const typeLabel = TYPE_LABEL[type];
-      const recipe = {
-        description: `Reroll stats of ${rarityLabel} ${typeLabel}`,
-        enabled: 1,
-        version: 100,
-        numinputs: 2,
-        'input 1': `${type},${rarity}`,
-        'input 2': rune,
-        output: `usetype,${rarity}`,
-        ilvl: 100, // preserve item level
-        '*eol\n': 0,
-      };
-      if (config.freeReroll) {
-        recipe['output b'] = rune;
-      }
-      cubemain.rows.push(recipe);
-    });
-  });
+  ['low', 'nor', 'hiq', 'mag', 'rar', 'uni', 'set', 'crf', 'tmp'].forEach(
+    (rarity) => {
+      const rarityLabel = RARITY_LABEL[from];
+      VALID_TYPES[rarity].forEach((type) => {
+        const typeLabel = TYPE_LABEL[type];
+        const recipe = {
+          description: `Reroll stats of ${rarityLabel} ${typeLabel}`,
+          enabled: 1,
+          version: 100,
+          numinputs: 2,
+          'input 1': `${type},${rarity}`,
+          'input 2': rune,
+          output: `usetype,${rarity}`,
+          ilvl: 100, // preserve item level
+          '*eol\n': 0,
+        };
+        if (config.freeReroll) {
+          recipe['output b'] = rune;
+        }
+        cubemain.rows.push(recipe);
+      });
+    }
+  );
 }
 
 if (config.relevel) {
@@ -96,27 +105,29 @@ if (config.relevel) {
     [config.relevelIngredient40, 40],
     [config.relevelIngredient99, 99],
   ].forEach(([rune, lvl]) => {
-    ['low', 'nor', 'hiq', 'mag', 'rar', 'crf', 'tmp'].forEach((rarity) => {
-      const rarityLabel = RARITY_LABEL[from];
-      VALID_TYPES[rarity].forEach((type) => {
-        const typeLabel = TYPE_LABEL[type];
-        const recipe = {
-          description: `Set item level of ${rarityLabel} ${typeLabel} to ${lvl}`,
-          enabled: 1,
-          version: 100,
-          numinputs: 2,
-          'input 1': `${type},${rarity}`,
-          'input 2': rune,
-          output: `usetype,${rarity}`,
-          lvl,
-          '*eol\n': 0,
-        };
-        if (config.freeRelevel) {
-          recipe['output b'] = rune;
-        }
-        cubemain.rows.push(recipe);
-      });
-    });
+    ['low', 'nor', 'hiq', 'mag', 'rar', 'uni', 'set', 'crf', 'tmp'].forEach(
+      (rarity) => {
+        const rarityLabel = RARITY_LABEL[from];
+        VALID_TYPES[rarity].forEach((type) => {
+          const typeLabel = TYPE_LABEL[type];
+          const recipe = {
+            description: `Set item level of ${rarityLabel} ${typeLabel} to ${lvl}`,
+            enabled: 1,
+            version: 100,
+            numinputs: 2,
+            'input 1': `${type},${rarity}`,
+            'input 2': rune,
+            output: `usetype,${rarity}`,
+            lvl,
+            '*eol\n': 0,
+          };
+          if (config.freeRelevel) {
+            recipe['output b'] = rune;
+          }
+          cubemain.rows.push(recipe);
+        });
+      }
+    );
   });
 }
 
